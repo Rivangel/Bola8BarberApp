@@ -1,56 +1,48 @@
-# Welcome to your Expo app 👋
+# Bola 8 Barbería
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App móvil (React Native + Expo) para la gestión de citas de una barbería. Tema
+oscuro, en español, fiel al diseño importado desde Claude Design.
 
-## Get started
+## Stack
 
-1. Install dependencies
+- **Expo SDK 56** + **expo-router** (Bottom Tabs + Stack)
+- **Zustand** + **AsyncStorage** — estado global persistido (citas, clientes, perfil)
+- **React Hook Form** — validación del formulario _Nueva cita_
+- **date-fns** (locale `es`) — formato de fechas
+- **expo-image-picker** — foto de perfil
+- **react-native-svg** — iconografía de línea
+- **@expo-google-fonts** — Oswald (titulares) · Manrope (texto)
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Ejecutar
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Pulsa `a` (Android), `i` (iOS) o escanea el QR con Expo Go.
 
-### Other setup steps
+## Estructura
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```
+src/
+  app/
+    _layout.tsx            Stack raíz + carga de fuentes + gate de sesión
+    (tabs)/                Inicio · Calendario · Nueva cita · Clientes · Perfil
+    cita/[id].tsx          Detalle / edición de cita
+    cliente/[id].tsx       Ficha de cliente + historial
+  components/              Componentes de UI reutilizables
+  store/                   Stores Zustand + datos semilla
+  hooks/                   Selectores derivados (citas, clientes)
+  constants/               colors.ts · typography.ts (tokens del diseño)
+  utils/dates.ts           Helpers de fecha/hora en español
+```
 
-## Learn more
+## Notas de diseño
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- La pantalla **Calendario** usa una rejilla horaria semanal a medida (no el
+  widget de `react-native-calendars`) para reproducir fielmente el diseño:
+  columnas L–S con bloques de cita posicionados por hora.
+- Las tarjetas de cita aparecen con un _fade-in_ escalonado al montar la lista.
+- Los datos se siembran en el primer arranque (6 clientes, 4 citas de hoy,
+  perfil de Héctor Gómez) y persisten en AsyncStorage.

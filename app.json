@@ -1,12 +1,13 @@
 {
   "expo": {
-    "name": "BarberBola8App",
+    "name": "Bola 8 Barbería",
     "slug": "BarberBola8App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "barberbola8app",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0c0c0d",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -28,13 +29,20 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0c0c0d",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permite elegir una foto de perfil para tu cuenta de barbero."
+        }
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
