@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AppointmentCard } from '@/components/AppointmentCard';
 import { DateStrip } from '@/components/DateStrip';
@@ -9,17 +9,24 @@ import { Screen } from '@/components/Screen';
 import { colors } from '@/constants/colors';
 import { fonts } from '@/constants/typography';
 import { useAppointments } from '@/hooks/useAppointments';
+import { useAppointmentsStore } from '@/store/appointments';
 import { daysFrom, toISO, weekStart } from '@/utils/dates';
 
 export default function InicioScreen() {
   const router = useRouter();
   const { byDate } = useAppointments();
+  const loadByDate = useAppointmentsStore((s) => s.loadByDate);
 
   const todayISO = toISO(new Date());
   const weekDays = useMemo(() => daysFrom(weekStart(new Date()), 5), []); // Mon–Fri
   const [selected, setSelected] = useState(
     weekDays.some((d) => toISO(d) === todayISO) ? todayISO : toISO(weekDays[0])
   );
+
+  // Carga las citas del día seleccionado desde la API.
+  useEffect(() => {
+    loadByDate(selected);
+  }, [selected, loadByDate]);
 
   const dayAppointments = byDate(selected).filter((a) => a.status !== 'cancelada');
 

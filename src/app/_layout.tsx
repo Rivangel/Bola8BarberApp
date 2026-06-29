@@ -20,6 +20,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Login } from '@/components/Login';
 import { colors } from '@/constants/colors';
+import { useClientsStore } from '@/store/clients';
 import { useProfileStore } from '@/store/profile';
 
 SplashScreen.preventAutoHideAsync();
@@ -43,10 +44,16 @@ export default function RootLayout() {
   });
 
   const isAuthenticated = useProfileStore((s) => s.isAuthenticated);
+  const loadClients = useClientsStore((s) => s.loadClients);
 
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
+
+  // Carga inicial de clientes desde la API una vez autenticado.
+  useEffect(() => {
+    if (isAuthenticated) loadClients();
+  }, [isAuthenticated, loadClients]);
 
   if (!loaded) return null;
 

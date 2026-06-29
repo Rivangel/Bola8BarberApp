@@ -18,6 +18,7 @@ export type Client = {
   id: string;
   name: string;
   phone: string;
+  notes?: string; // preferencias / notas del barbero
   lastVisit?: string; // ISO date
   initials: string;
   photoUri?: string;

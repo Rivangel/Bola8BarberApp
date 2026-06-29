@@ -56,14 +56,18 @@ export default function DetalleScreen() {
     setEditing(true);
   };
 
-  const save = () => {
-    updateAppointment(appointment.id, {
-      service,
-      status,
-      notes: notes.trim() || undefined,
-      price: SERVICE_PRICE[service],
-    });
-    setEditing(false);
+  const save = async () => {
+    try {
+      await updateAppointment(appointment.id, {
+        service,
+        status,
+        notes: notes.trim() || undefined,
+        price: SERVICE_PRICE[service],
+      });
+      setEditing(false);
+    } catch (e) {
+      Alert.alert('No se pudo guardar', e instanceof Error ? e.message : 'Inténtalo de nuevo.');
+    }
   };
 
   const confirmCancel = () => {
@@ -72,9 +76,13 @@ export default function DetalleScreen() {
       {
         text: 'Sí, cancelar',
         style: 'destructive',
-        onPress: () => {
-          cancelAppointment(appointment.id);
-          router.back();
+        onPress: async () => {
+          try {
+            await cancelAppointment(appointment.id);
+            router.back();
+          } catch (e) {
+            Alert.alert('No se pudo cancelar', e instanceof Error ? e.message : 'Inténtalo de nuevo.');
+          }
         },
       },
     ]);
