@@ -9,7 +9,7 @@ import { colors } from '@/constants/colors';
 import { fonts, radius } from '@/constants/typography';
 import { clientesService } from '@/services';
 import { useClientsStore } from '@/store/clients';
-import type { Appointment } from '@/types';
+import { formatMXN, type Appointment } from '@/types';
 import { longDate } from '@/utils/dates';
 
 export default function ClienteDetalleScreen() {
@@ -161,7 +161,7 @@ export default function ClienteDetalleScreen() {
                   </Text>
                 </View>
                 <View style={styles.historyRight}>
-                  <Text style={styles.historyPrice}>{a.price} €</Text>
+                  <Text style={styles.historyPrice}>{formatMXN(a.price)}</Text>
                   <StatusBadge status={a.status} />
                 </View>
               </Pressable>

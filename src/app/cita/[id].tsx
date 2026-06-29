@@ -20,6 +20,7 @@ import { useAppointment } from '@/hooks/useAppointments';
 import { useAppointmentsStore } from '@/store/appointments';
 import {
   SERVICE_PRICE,
+  formatMXN,
   type AppointmentStatus,
   type ServiceName,
 } from '@/types';
@@ -143,7 +144,7 @@ export default function DetalleScreen() {
               <DetailRow icon="scissors" label="Servicio" value={appointment.service} />
               <DetailRow icon="calendar-line" label="Fecha" value={longDate(appointment.date)} />
               <DetailRow icon="clock" label="Hora" value={`${appointment.startTime} — ${endTime}`} />
-              <DetailRow icon="euro" label="Precio" value={`${appointment.price} €`} price last />
+              <DetailRow icon="dollar" label="Precio" value={formatMXN(appointment.price)} price last />
             </View>
 
             {/* note */}
