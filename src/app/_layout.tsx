@@ -19,6 +19,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Login } from '@/components/Login';
+import { Toast } from '@/components/Toast';
 import { colors } from '@/constants/colors';
 import { useClientsStore } from '@/store/clients';
 import { useProfileStore } from '@/store/profile';
@@ -63,11 +64,14 @@ export default function RootLayout() {
       <ThemeProvider value={navTheme}>
         <StatusBar style="light" />
         {isAuthenticated ? (
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="cita/[id]" />
-            <Stack.Screen name="cliente/[id]" />
-          </Stack>
+          <>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="cita/[id]" />
+              <Stack.Screen name="cliente/[id]" />
+            </Stack>
+            <Toast />
+          </>
         ) : (
           <Login />
         )}
