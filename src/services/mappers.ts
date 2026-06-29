@@ -1,5 +1,5 @@
-import type { Appointment, AppointmentStatus, Client, ServiceName } from '@/types';
-import type { CitaDTO, ClienteDTO, EstadoCitaDTO } from './types';
+import type { Appointment, AppointmentStatus, Client, ServiceName, SessionUser } from '@/types';
+import type { CitaDTO, ClienteDTO, EstadoCitaDTO, UsuarioDTO } from './types';
 
 /**
  * Conversión entre los DTOs de la API (español, forma de Prisma) y los tipos
@@ -69,6 +69,15 @@ export function citaToAppointment(dto: CitaDTO): Appointment {
     durationMin: dto.servicio?.duracionMinutos ?? diffMinutes(dto.horaInicio, dto.horaFin),
     status: estadoToStatus(dto.estado),
     price: Number(dto.servicio?.precio ?? 0),
+  };
+}
+
+export function usuarioToSessionUser(dto: UsuarioDTO): SessionUser {
+  return {
+    id: String(dto.id),
+    name: dto.nombre,
+    email: dto.email,
+    role: dto.rol,
   };
 }
 
