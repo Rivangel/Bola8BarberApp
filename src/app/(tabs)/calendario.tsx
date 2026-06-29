@@ -1,33 +1,50 @@
 import { addDays } from 'date-fns';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { colors } from '@/constants/colors';
 import { fonts, radius } from '@/constants/typography';
 import { useAppointments } from '@/hooks/useAppointments';
+import { useAppointmentsStore } from '@/store/appointments';
 import { daysFrom, singleWeekday, toISO, weekRangeLabel, weekStart } from '@/utils/dates';
 
-const HOURS = [9, 10, 11, 12, 13, 14];
-const HOUR_HEIGHT = 64;
-const START_HOUR = 9;
+const START_HOUR = 11;
+const END_HOUR = 19;
+const SLOT_MIN = 30; // la barbería trabaja en bloques de media hora
+const SLOT_HEIGHT = 34;
+
+// Marcas de media hora: 09:00, 09:30, 10:00, … 18:30.
+const SLOTS = Array.from(
+  { length: ((END_HOUR - START_HOUR) * 60) / SLOT_MIN },
+  (_, i) => {
+    const min = START_HOUR * 60 + i * SLOT_MIN;
+    return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+  }
+);
 
 function topFor(startTime: string): number {
   const [h, m] = startTime.split(':').map(Number);
-  return (h - START_HOUR + m / 60) * HOUR_HEIGHT;
+  return ((h * 60 + m - START_HOUR * 60) / SLOT_MIN) * SLOT_HEIGHT;
 }
 function heightFor(durationMin: number): number {
-  return Math.max(22, (durationMin / 60) * HOUR_HEIGHT - 4);
+  return Math.max(18, (durationMin / SLOT_MIN) * SLOT_HEIGHT - 4);
 }
 
 export default function CalendarioScreen() {
   const router = useRouter();
   const { all } = useAppointments();
+  const loadByDate = useAppointmentsStore((s) => s.loadByDate);
   const [anchor, setAnchor] = useState(() => weekStart(new Date()));
 
   const days = useMemo(() => daysFrom(anchor, 6), [anchor]); // Mon–Sat
   const todayISO = toISO(new Date());
+
+  // Carga las citas de cada día visible de la semana desde la API.
+  useEffect(() => {
+    days.forEach((d) => loadByDate(toISO(d)));
+  }, [days, loadByDate]);
 
   const byDayISO = useMemo(() => {
     const map = new Map<string, typeof all>();
@@ -75,11 +92,11 @@ export default function CalendarioScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
         {/* time grid */}
         <View style={styles.grid}>
-          {/* hours gutter */}
+          {/* half-hour gutter */}
           <View style={styles.gutter}>
-            {HOURS.map((h) => (
-              <View key={h} style={{ height: HOUR_HEIGHT }}>
-                <Text style={styles.hourText}>{String(h).padStart(2, '0')}</Text>
+            {SLOTS.map((t) => (
+              <View key={t} style={{ height: SLOT_HEIGHT }}>
+                <Text style={styles.hourText}>{t}</Text>
               </View>
             ))}
           </View>
@@ -92,7 +109,7 @@ export default function CalendarioScreen() {
             return (
               <View
                 key={iso}
-                style={[styles.dayColumn, active && styles.dayColumnActive, { height: HOURS.length * HOUR_HEIGHT }]}
+                style={[styles.dayColumn, active && styles.dayColumnActive, { height: SLOTS.length * SLOT_HEIGHT }]}
               >
                 {appts.map((a) => {
                   const confirmed = a.status === 'confirmada';
@@ -159,13 +176,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   weekRow: { flexDirection: 'row', gap: 5, marginBottom: 6 },
-  gutter: { width: 30 },
+  gutter: { width: 44 },
   weekCol: { flex: 1, alignItems: 'center' },
   weekLetter: { fontFamily: fonts.manropeBold, fontSize: 10, color: colors.textMuted },
   weekNum: { fontFamily: fonts.oswald, fontSize: 14, color: colors.textPrimary },
   activeText: { color: colors.gold },
   grid: { flexDirection: 'row', gap: 5 },
-  hourText: { fontFamily: fonts.oswald, fontSize: 11, color: colors.textFaint, paddingTop: 4 },
+  hourText: { fontFamily: fonts.oswald, fontSize: 10, color: colors.textFaint, paddingTop: 3 },
   dayColumn: {
     flex: 1,
     backgroundColor: colors.surfaceDim,

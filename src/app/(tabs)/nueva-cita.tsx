@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -24,7 +25,11 @@ import { useClientsStore } from '@/store/clients';
 import { SERVICE_PRICE, type ServiceName } from '@/types';
 import { dayMonth, toISO } from '@/utils/dates';
 
-const BASE_SLOTS = ['09:00', '09:45', '10:30', '11:15', '12:00', '12:45', '16:00', '16:45'];
+// Horarios de 11:00 a 18:30 en intervalos de 30 minutos (jornada de la barbería).
+const BASE_SLOTS = Array.from({ length: 16 }, (_, i) => {
+  const min = 11 * 60 + i * 30;
+  return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+});
 const DURATIONS = [30, 45, 60];
 
 type FormValues = { cliente: string; telefono: string };
@@ -46,8 +51,8 @@ export default function NuevaCitaScreen() {
 
   const [service, setService] = useState<ServiceName | null>('Corte + Barba');
   const [date, setDate] = useState(new Date());
-  const [duration, setDuration] = useState(45);
-  const [slot, setSlot] = useState<string | null>('10:30');
+  const [duration, setDuration] = useState(30); // 30 min por defecto
+  const [slot, setSlot] = useState<string | null>('11:00');
   const [showDate, setShowDate] = useState(false);
   const [showDuration, setShowDuration] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -68,25 +73,37 @@ export default function NuevaCitaScreen() {
     return BASE_SLOTS.map((time) => ({ time, booked: booked.has(time) && time !== slot }));
   }, [appointments, date, slot]);
 
-  const onSubmit = (values: FormValues) => {
-    if (!service || !slot) return;
-    // find or create the client
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = async (values: FormValues) => {
+    if (!service || !slot || submitting) return;
+    setSubmitting(true);
+    // Buscar (o crear localmente) al cliente; la API también lo resolverá por
+    // teléfono + nombre al agendar.
     let client = clients.find((c) => c.name.toLowerCase() === values.cliente.trim().toLowerCase());
     if (!client) {
       client = addClient({ name: values.cliente, phone: values.telefono });
     }
-    addAppointment({
-      clientId: client.id,
-      service,
-      date: toISO(date),
-      startTime: slot,
-      durationMin: duration,
-      price: SERVICE_PRICE[service],
-    });
-    router.replace('/');
+    try {
+      await addAppointment({
+        clientId: client.id,
+        clientName: values.cliente.trim(),
+        clientPhone: values.telefono.trim(),
+        service,
+        date: toISO(date),
+        startTime: slot,
+        durationMin: duration,
+        price: SERVICE_PRICE[service],
+      });
+      router.replace('/');
+    } catch (e) {
+      Alert.alert('No se pudo agendar', e instanceof Error ? e.message : 'Inténtalo de nuevo.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const canSubmit = !!service && !!slot;
+  const canSubmit = !!service && !!slot && !submitting;
 
   return (
     <Screen padded={false}>
