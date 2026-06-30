@@ -63,8 +63,8 @@ export default function ClientesScreen() {
         {clients.length === 0 ? (
           <Text style={styles.empty}>No se encontraron clientes.</Text>
         ) : (
-          clients.map((c) => (
-            <ClientRow key={c.id} client={c} onPress={() => router.push(`/cliente/${c.id}`)} />
+          clients.map((c, i) => (
+            <ClientRow key={c.id} client={c} index={i} onPress={() => router.push(`/cliente/${c.id}`)} />
           ))
         )}
       </ScrollView>
