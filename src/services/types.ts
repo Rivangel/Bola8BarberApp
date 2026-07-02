@@ -20,6 +20,24 @@ export interface BarberoDTO {
   activo: boolean;
 }
 
+export type RolUsuarioDTO = 'ADMIN' | 'BARBERO';
+
+/** Usuario del panel devuelto por la API (sin passwordHash). */
+export interface UsuarioDTO {
+  id: number;
+  nombre: string;
+  email: string;
+  rol: RolUsuarioDTO;
+  activo: boolean;
+  createdAt: string;
+}
+
+/** Respuesta de POST /api/auth/login. */
+export interface LoginResponseDTO {
+  token: string;
+  usuario: UsuarioDTO;
+}
+
 export interface ServicioDTO {
   id: number;
   nombre: string;

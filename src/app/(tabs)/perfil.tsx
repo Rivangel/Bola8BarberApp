@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { BrandLoader } from '@/components/BrandLoader';
 import { Icon, type IconName } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { colors } from '@/constants/colors';
@@ -29,6 +31,8 @@ export default function PerfilScreen() {
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<BarberProfile>(profile);
+  const [showLogout, setShowLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const initials = profile.name
     .split(/\s+/)
@@ -68,11 +72,12 @@ export default function PerfilScreen() {
     }
   };
 
-  const confirmLogout = () => {
-    Alert.alert('Cerrar sesión', '¿Seguro que quieres cerrar sesión?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Cerrar sesión', style: 'destructive', onPress: logout },
-    ]);
+  const doLogout = () => {
+    setShowLogout(false);
+    setLoggingOut(true);
+    // Mostramos el loader de marca un instante antes de limpiar la sesión; al
+    // hacer logout, el layout raíz desmonta esta pantalla y muestra el login.
+    setTimeout(logout, 900);
   };
 
   return (
@@ -159,12 +164,40 @@ export default function PerfilScreen() {
         <View style={[styles.card, { marginTop: 16 }]}>
           <SettingRow icon="bell" label="Notificaciones" />
           <SettingRow icon="clock" label="Horario de trabajo" />
-          <Pressable style={styles.settingRowLast} onPress={confirmLogout}>
+          <Pressable style={styles.settingRowLast} onPress={() => setShowLogout(true)}>
             <Icon name="logout" size={17} color={colors.statusRed} />
             <Text style={[styles.settingText, { color: colors.statusRed }]}>Cerrar sesión</Text>
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* confirmación de cierre de sesión (modal propio: funciona en web y nativo) */}
+      <Modal
+        visible={showLogout}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogout(false)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowLogout(false)}>
+          <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.modalTitle}>Cerrar sesión</Text>
+            <Text style={styles.modalMessage}>¿Seguro que quieres cerrar sesión?</Text>
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.modalBtn, styles.modalBtnGhost]}
+                onPress={() => setShowLogout(false)}
+              >
+                <Text style={styles.modalBtnGhostText}>Cancelar</Text>
+              </Pressable>
+              <Pressable style={[styles.modalBtn, styles.modalBtnDanger]} onPress={doLogout}>
+                <Text style={styles.modalBtnDangerText}>Cerrar sesión</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <BrandLoader visible={loggingOut} label="Cerrando sesión…" />
     </Screen>
   );
 }
@@ -341,4 +374,37 @@ const styles = StyleSheet.create({
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 14, paddingHorizontal: 16 },
   settingRowLast: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 14, paddingHorizontal: 16 },
   settingText: { flex: 1, fontFamily: fonts.manropeSemiBold, fontSize: 14, color: colors.textPrimary },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,.6)',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  modalCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.cardLg,
+    padding: 20,
+  },
+  modalTitle: { fontFamily: fonts.oswaldSemiBold, fontSize: 19, color: colors.textPrimary },
+  modalMessage: {
+    fontFamily: fonts.manrope,
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  modalActions: { flexDirection: 'row', gap: 10 },
+  modalBtn: {
+    flex: 1,
+    height: 46,
+    borderRadius: radius.button,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalBtnGhost: { backgroundColor: colors.surfaceDim, borderWidth: 1, borderColor: colors.border },
+  modalBtnGhostText: { fontFamily: fonts.manropeBold, fontSize: 14, color: colors.textSecondary },
+  modalBtnDanger: { backgroundColor: colors.statusRed },
+  modalBtnDangerText: { fontFamily: fonts.manropeExtraBold, fontSize: 14, color: colors.background },
 });

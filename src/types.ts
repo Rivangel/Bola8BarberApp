@@ -24,6 +24,16 @@ export type Client = {
   photoUri?: string;
 };
 
+export type UserRole = 'ADMIN' | 'BARBERO';
+
+// Usuario autenticado (sesión actual). Deriva del Usuario de la API.
+export type SessionUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+};
+
 export type BarberProfile = {
   name: string;
   role: string;
@@ -34,13 +44,20 @@ export type BarberProfile = {
   stats: { appointments: number; clients: number; rating: number };
 };
 
-// Default price per service (€) used when creating an appointment from the form.
+// Precio por servicio en pesos mexicanos (MXN), usado al crear una cita desde el formulario.
 export const SERVICE_PRICE: Record<ServiceName, number> = {
-  Corte: 18,
-  Barba: 14,
-  'Corte + Barba': 28,
-  'Afeitado clásico': 20,
+  Corte: 120,
+  Barba: 90,
+  'Corte + Barba': 190,
+  'Afeitado clásico': 110,
 };
+
+/** Formatea un importe en pesos mexicanos, p. ej. 1200 → "$1,200". */
+export function formatMXN(amount: number): string {
+  return `$${Math.round(amount)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+}
 
 export const SERVICES: ServiceName[] = [
   'Corte',

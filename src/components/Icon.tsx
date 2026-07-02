@@ -23,6 +23,7 @@ export type IconName =
   | 'clock'
   | 'scissors'
   | 'euro'
+  | 'dollar'
   | 'check'
   | 'close'
   | 'edit'
@@ -30,7 +31,10 @@ export type IconName =
   | 'mail'
   | 'map-pin'
   | 'settings'
-  | 'logout';
+  | 'logout'
+  | 'lock'
+  | 'eye'
+  | 'eye-off';
 
 type Props = {
   name: IconName;
@@ -144,6 +148,13 @@ export function Icon({ name, size = 22, color = colors.textPrimary, strokeWidth 
             <Path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" {...common} />
           </>
         );
+      case 'dollar':
+        return (
+          <>
+            <Line x1={12} y1={1} x2={12} y2={23} {...common} />
+            <Path d="M17 6.5C17 4.6 14.5 3.5 12 3.5S7 4.7 7 7s2.5 3.2 5 3.7 5 1.4 5 3.8-2.5 3.5-5 3.5-5-1-5-3" {...common} />
+          </>
+        );
       case 'check':
         return <Polyline points="20 6 9 17 4 12" {...common} />;
       case 'close':
@@ -195,6 +206,28 @@ export function Icon({ name, size = 22, color = colors.textPrimary, strokeWidth 
             <Path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" {...common} />
             <Polyline points="16 17 21 12 16 7" {...common} />
             <Line x1={21} y1={12} x2={9} y2={12} {...common} />
+          </>
+        );
+      case 'lock':
+        return (
+          <>
+            <Rect x={3} y={11} width={18} height={11} rx={2} {...common} />
+            <Path d="M7 11V7a5 5 0 0 1 10 0v4" {...common} />
+          </>
+        );
+      case 'eye':
+        return (
+          <>
+            <Path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" {...common} />
+            <Circle cx={12} cy={12} r={3} {...common} />
+          </>
+        );
+      case 'eye-off':
+        return (
+          <>
+            <Path d="M9.9 4.2A10.9 10.9 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.6 3.8M6.6 6.6A18.5 18.5 0 0 0 1 12s4 8 11 8a10.9 10.9 0 0 0 5.4-1.4" {...common} />
+            <Path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" {...common} />
+            <Line x1={2} y1={2} x2={22} y2={22} {...common} />
           </>
         );
       default:
